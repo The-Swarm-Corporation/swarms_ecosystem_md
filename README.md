@@ -17,4 +17,6 @@ cd docs-starter
 
 fern generate --docs
 
+## or fern docs dev
+
 ```
