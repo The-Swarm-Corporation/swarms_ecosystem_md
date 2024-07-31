@@ -1,0 +1,503 @@
+## `Agents`
+A fully plug-and-play autonomous agent powered by an LLM extended by a long-term memory database, and equipped with function calling for tool usage! By passing in an LLM, you can create a fully autonomous agent with extreme customization and reliability, ready for real-world task automation!
+
+Features:
+
+✅ Any LLM / Any framework
+
+✅ Extremely customize-able with max loops, autosaving, import docs (PDFS, TXT, CSVs, etc), tool usage, etc etc
+
+✅ Long term memory database with RAG (ChromaDB, Pinecone, Qdrant)
+
+```python
+from swarms import Agent, OpenAIChat
+from swarms.prompts.finance_agent_sys_prompt import (
+    FINANCIAL_AGENT_SYS_PROMPT,
+)
+
+model = OpenAIChat()
+
+# Initialize the agent
+agent = Agent(
+    agent_name="Financial-Analysis-Agent",
+    system_prompt=FINANCIAL_AGENT_SYS_PROMPT,
+    llm=model,
+    max_loops=1,
+    autosave=True,
+    # dynamic_temperature_enabled=True,
+    dashboard=False,
+    verbose=True,
+    streaming_on=True,
+    # interactive=True, # Set to False to disable interactive mode
+    dynamic_temperature_enabled=True,
+    saved_state_path="finance_agent.json",
+    # tools=[Add your functions here# ],
+    # stopping_token="Stop!",
+    # interactive=True,
+    # docs_folder="docs", # Enter your folder name
+    # pdf_path="docs/finance_agent.pdf",
+    # sop="Calculate the profit for a company.",
+    # sop_list=["Calculate the profit for a company."],
+    user_name="swarms_corp",
+    # # docs=
+    # # docs_folder="docs",
+    retry_attempts=3,
+    # context_length=1000,
+    # tool_schema = dict
+    context_length=200000,
+    # agent_ops_on=True,
+    # long_term_memory=ChromaDB(docs_folder="artifacts"),
+)
+
+
+agent.run(
+    "What are the components of a startups stock incentive equity plan"
+)
+```
+
+-----
+
+### Agent with RAG
+`Agent` equipped with quasi-infinite long term memory. Great for long document understanding, analysis, and retrieval.
+
+```python
+import os
+
+from swarms_memory import ChromaDB
+
+from swarms import Agent, Anthropic
+from swarms.prompts.finance_agent_sys_prompt import (
+    FINANCIAL_AGENT_SYS_PROMPT,
+)
+
+# Initilaize the chromadb client
+chromadb = ChromaDB(
+    metric="cosine",
+    output_dir="fiance_agent_rag",
+    # docs_folder="artifacts", # Folder of your documents
+)
+
+
+# Initialize the agent
+agent = Agent(
+    agent_name="Financial-Analysis-Agent",
+    system_prompt=FINANCIAL_AGENT_SYS_PROMPT,
+    agent_description="Agent creates ",
+    llm=Anthropic(anthropic_api_key=os.getenv("ANTHROPIC_API_KEY")),
+    max_loops="auto",
+    autosave=True,
+    # dynamic_temperature_enabled=True,
+    dashboard=False,
+    verbose=True,
+    streaming_on=True,
+    # interactive=True, # Set to False to disable interactive mode
+    dynamic_temperature_enabled=True,
+    saved_state_path="finance_agent.json",
+    # tools=[Add your functions here# ],
+    # stopping_token="Stop!",
+    # interactive=True,
+    # docs_folder="docs", # Enter your folder name
+    # pdf_path="docs/finance_agent.pdf",
+    # sop="Calculate the profit for a company.",
+    # sop_list=["Calculate the profit for a company."],
+    user_name="swarms_corp",
+    # # docs=
+    # # docs_folder="docs",
+    retry_attempts=3,
+    # context_length=1000,
+    # tool_schema = dict
+    context_length=200000,
+    # agent_ops_on=True,
+    # long_term_memory=ChromaDB(docs_folder="artifacts"),
+)
+
+
+
+agent.run(
+    "What are the components of a startups stock incentive equity plan"
+)
+
+```
+
+-------
+
+### `Agent` ++ Long Term Memory ++ Tools!
+An LLM equipped with long term memory and tools, a full stack agent capable of automating all and any digital tasks given a good prompt.
+
+```python
+import logging
+from dotenv import load_dotenv
+from swarms import Agent, OpenAIChat
+from swarms_memory import ChromaDB
+import subprocess
+
+# Making an instance of the ChromaDB class
+memory = ChromaDB(
+    metric="cosine",
+    n_results=3,
+    output_dir="results",
+    docs_folder="docs",
+)
+
+# Tools in swarms are simple python functions and docstrings
+def terminal(
+    code: str,
+):
+    """
+    Run code in the terminal.
+
+    Args:
+        code (str): The code to run in the terminal.
+
+    Returns:
+        str: The output of the code.
+    """
+    out = subprocess.run(
+        code, shell=True, capture_output=True, text=True
+    ).stdout
+    return str(out)
+
+def browser(query: str):
+    """
+    Search the query in the browser with the `browser` tool.
+
+    Args:
+        query (str): The query to search in the browser.
+
+    Returns:
+        str: The search results.
+    """
+    import webbrowser
+
+    url = f"https://www.google.com/search?q={query}"
+    webbrowser.open(url)
+    return f"Searching for {query} in the browser."
+
+def create_file(file_path: str, content: str):
+    """
+    Create a file using the file editor tool.
+
+    Args:
+        file_path (str): The path to the file.
+        content (str): The content to write to the file.
+
+    Returns:
+        str: The result of the file creation operation.
+    """
+    with open(file_path, "w") as file:
+        file.write(content)
+    return f"File {file_path} created successfully."
+
+def file_editor(file_path: str, mode: str, content: str):
+    """
+    Edit a file using the file editor tool.
+
+    Args:
+        file_path (str): The path to the file.
+        mode (str): The mode to open the file in.
+        content (str): The content to write to the file.
+
+    Returns:
+        str: The result of the file editing operation.
+    """
+    with open(file_path, mode) as file:
+        file.write(content)
+    return f"File {file_path} edited successfully."
+
+
+# Agent
+agent = Agent(
+    agent_name="Devin",
+    system_prompt=(
+        "Autonomous agent that can interact with humans and other"
+        " agents. Be Helpful and Kind. Use the tools provided to"
+        " assist the user. Return all code in markdown format."
+    ),
+    llm=llm,
+    max_loops="auto",
+    autosave=True,
+    dashboard=False,
+    streaming_on=True,
+    verbose=True,
+    stopping_token="<DONE>",
+    interactive=True,
+    tools=[terminal, browser, file_editor, create_file],
+    streaming=True,
+    long_term_memory=memory,
+)
+
+# Run the agent
+out = agent("Create a new file for a plan to take over the world.")
+print(out)
+
+```
+
+-------
+
+
+### Devin
+Implementation of Devin in less than 90 lines of code with several tools:
+terminal, browser, and edit files.
+
+```python
+from swarms import Agent, Anthropic
+import subprocess
+
+# Model
+llm = Anthropic(
+    temperature=0.1,
+)
+
+# Tools
+def terminal(
+    code: str,
+):
+    """
+    Run code in the terminal.
+
+    Args:
+        code (str): The code to run in the terminal.
+
+    Returns:
+        str: The output of the code.
+    """
+    out = subprocess.run(
+        code, shell=True, capture_output=True, text=True
+    ).stdout
+    return str(out)
+
+def browser(query: str):
+    """
+    Search the query in the browser with the `browser` tool.
+
+    Args:
+        query (str): The query to search in the browser.
+
+    Returns:
+        str: The search results.
+    """
+    import webbrowser
+
+    url = f"https://www.google.com/search?q={query}"
+    webbrowser.open(url)
+    return f"Searching for {query} in the browser."
+
+def create_file(file_path: str, content: str):
+    """
+    Create a file using the file editor tool.
+
+    Args:
+        file_path (str): The path to the file.
+        content (str): The content to write to the file.
+
+    Returns:
+        str: The result of the file creation operation.
+    """
+    with open(file_path, "w") as file:
+        file.write(content)
+    return f"File {file_path} created successfully."
+
+def file_editor(file_path: str, mode: str, content: str):
+    """
+    Edit a file using the file editor tool.
+
+    Args:
+        file_path (str): The path to the file.
+        mode (str): The mode to open the file in.
+        content (str): The content to write to the file.
+
+    Returns:
+        str: The result of the file editing operation.
+    """
+    with open(file_path, mode) as file:
+        file.write(content)
+    return f"File {file_path} edited successfully."
+
+
+# Agent
+agent = Agent(
+    agent_name="Devin",
+    system_prompt=(
+        "Autonomous agent that can interact with humans and other"
+        " agents. Be Helpful and Kind. Use the tools provided to"
+        " assist the user. Return all code in markdown format."
+    ),
+    llm=llm,
+    max_loops="auto",
+    autosave=True,
+    dashboard=False,
+    streaming_on=True,
+    verbose=True,
+    stopping_token="<DONE>",
+    interactive=True,
+    tools=[terminal, browser, file_editor, create_file],
+    streaming=True,
+)
+
+# Run the agent
+out = agent("Create a new file for a plan to take over the world.")
+print(out)
+```
+
+
+### `Agent`with Pydantic BaseModel as Output Type
+The following is an example of an agent that intakes a pydantic basemodel and outputs it at the same time:
+
+```python
+from pydantic import BaseModel, Field
+from swarms import Anthropic, Agent
+
+
+# Initialize the schema for the person's information
+class Schema(BaseModel):
+    name: str = Field(..., title="Name of the person")
+    agent: int = Field(..., title="Age of the person")
+    is_student: bool = Field(..., title="Whether the person is a student")
+    courses: list[str] = Field(
+        ..., title="List of courses the person is taking"
+    )
+
+
+# Convert the schema to a JSON string
+tool_schema = Schema(
+    name="Tool Name",
+    agent=1,
+    is_student=True,
+    courses=["Course1", "Course2"],
+)
+
+# Define the task to generate a person's information
+task = "Generate a person's information based on the following schema:"
+
+# Initialize the agent
+agent = Agent(
+    agent_name="Person Information Generator",
+    system_prompt=(
+        "Generate a person's information based on the following schema:"
+    ),
+    # Set the tool schema to the JSON string -- this is the key difference
+    tool_schema=tool_schema,
+    llm=Anthropic(),
+    max_loops=3,
+    autosave=True,
+    dashboard=False,
+    streaming_on=True,
+    verbose=True,
+    interactive=True,
+    # Set the output type to the tool schema which is a BaseModel
+    output_type=tool_schema,  # or dict, or str
+    metadata_output_type="json",
+    # List of schemas that the agent can handle
+    list_base_models=[tool_schema],
+    function_calling_format_type="OpenAI",
+    function_calling_type="json",  # or soon yaml
+)
+
+# Run the agent to generate the person's information
+generated_data = agent.run(task)
+
+# Print the generated data
+print(f"Generated data: {generated_data}")
+
+
+```
+
+### Multi Modal Autonomous Agent
+Run the agent with multiple modalities useful for various real-world tasks in manufacturing, logistics, and health.
+
+```python
+import os
+from dotenv import load_dotenv
+from swarms import GPT4VisionAPI, Agent
+
+# Load the environment variables
+load_dotenv()
+
+
+# Initialize the language model
+llm = GPT4VisionAPI(
+    openai_api_key=os.environ.get("OPENAI_API_KEY"),
+    max_tokens=500,
+)
+
+# Initialize the task
+task = (
+    "Analyze this image of an assembly line and identify any issues such as"
+    " misaligned parts, defects, or deviations from the standard assembly"
+    " process. IF there is anything unsafe in the image, explain why it is"
+    " unsafe and how it could be improved."
+)
+img = "assembly_line.jpg"
+
+## Initialize the workflow
+agent = Agent(
+    agent_name = "Multi-ModalAgent",
+    llm=llm, 
+    max_loops="auto", 
+    autosave=True, 
+    dashboard=True, 
+    multi_modal=True
+)
+
+# Run the workflow on a task
+agent.run(task, img)
+```
+----
+
+
+### `ToolAgent`
+ToolAgent is an agent that can use tools through JSON function calling. It intakes any open source model from huggingface and is extremely modular and plug in and play. We need help adding general support to all models soon.
+
+
+```python
+from pydantic import BaseModel, Field
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+from swarms import ToolAgent
+from swarms.utils.json_utils import base_model_to_json
+
+# Load the pre-trained model and tokenizer
+model = AutoModelForCausalLM.from_pretrained(
+    "databricks/dolly-v2-12b",
+    load_in_4bit=True,
+    device_map="auto",
+)
+tokenizer = AutoTokenizer.from_pretrained("databricks/dolly-v2-12b")
+
+
+# Initialize the schema for the person's information
+class Schema(BaseModel):
+    name: str = Field(..., title="Name of the person")
+    agent: int = Field(..., title="Age of the person")
+    is_student: bool = Field(
+        ..., title="Whether the person is a student"
+    )
+    courses: list[str] = Field(
+        ..., title="List of courses the person is taking"
+    )
+
+
+# Convert the schema to a JSON string
+tool_schema = base_model_to_json(Schema)
+
+# Define the task to generate a person's information
+task = (
+    "Generate a person's information based on the following schema:"
+)
+
+# Create an instance of the ToolAgent class
+agent = ToolAgent(
+    name="dolly-function-agent",
+    description="Ana gent to create a child data",
+    model=model,
+    tokenizer=tokenizer,
+    json_schema=tool_schema,
+)
+
+# Run the agent to generate the person's information
+generated_data = agent.run(task)
+
+# Print the generated data
+print(f"Generated data: {generated_data}")
+
+```

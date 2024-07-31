@@ -1,0 +1,53 @@
+Swarms can be downloaded through the `pip` package manager. 
+Follow the steps below to get your environment set up. We also provide methods of Installation
+with VENV, Anaconda, and local environment configuration for contributors.
+
+<Steps>
+  ### 1st Step
+    - Python 3.10 or higher: [Download Python](https://www.python.org/)
+
+  ### 2nd Step
+    - Upgrade pip with `pip install -U pip`
+  
+  ### 3rd Step
+    Download Swarms with `pip install -U swarms`
+</Steps>
+
+<Check>Verisoning Check: `pip show swarms`</Check>
+<Check> To upgrade Swarms Run: `pip install -U swarms`</Check>
+
+## Alternative Installation Methods
+
+<Tabs>
+  <Tab title="Venv">
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install --upgrade pip
+    pip3 install -U swarms
+    
+    ```
+  </Tab>
+  <Tab title="Anaconda">
+    ```bash
+    conda create -n swarms python=3.10
+    conda activate swarms
+    pip install swarms
+    
+    ```
+  </Tab>
+  <Tab title="Docker">
+    ```bash
+
+    coming soon.
+    
+    ```
+  </Tab>
+  <Tab title="For Contributors">
+    ```bash
+    git clone https://github.com/kyegomez/swarms.git
+    cd swarms
+    pip install -r requirements.txt
+    ```
+  </Tab>
+</Tabs>

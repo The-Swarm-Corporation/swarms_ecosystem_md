@@ -1,0 +1,57 @@
+instances:
+  - url: plantstore.docs.buildwithfern.com
+    custom-domain: swarms.world
+    edit-this-page:
+      github:
+        owner: fern-api
+        repo: docs-starter
+        branch: main
+
+title: Swarms Docs
+
+layout:
+  searchbar-placement: header
+  page-width: full
+
+navigation:
+  - section: Get Started
+    contents:
+      - page: Welcome
+        path: docs/pages/welcome.mdx
+      - page: Installation
+        path: docs/pages/install.mdx
+      - page: Agents
+        path: docs/pages/agents.mdx
+      - page: Multi-Agent Collaboration
+        path: docs/pages/multi_agent_collab.mdx
+      # - page: SDKs
+      #   path: docs/pages/sdks.mdx
+      #   slug: sdks
+  # - api: API Reference
+
+navbar-links:
+  - type: secondary
+    text: Swarms Github
+    url: https://github.com/kyegomez/swarms
+  - type: secondary
+    text: Community
+    url: https://discord.com/servers/agora-999382051935506503
+  - type: primary
+    text: Book Demo
+    url: https://cal.com/swarms/swarms-onboarding-session
+
+colors:
+  accentPrimary:
+    dark: "#B22222"
+    light: "#B22222"
+  background:
+    dark: "#000000"
+    light: "#F2F0EF"
+
+logo:
+  dark: docs/assets/logo-dark.svg
+  light: docs/assets/logo-light.svg
+  height: 20
+  href: https://buildwithfern.com/?utm_campaign=demo&utm_medium=plantstore&utm_source=logo
+
+favicon: docs/assets/favicon.svg
